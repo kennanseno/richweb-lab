@@ -1,74 +1,90 @@
-var inputVal = [];
-var cleanValArray = false;
-const createButton = (text) => {
-  const button = document.createElement('button');
-  button.innerHTML = text;
-  button.style.cssText = 'font-size: 1.1em; border-radius: 5px; width: 50px; text-align: center; padding: .5em; font-size: 1em; flex-grow: 1; margin: 0 5px 5px 0;';
-  //Add clickListener on each buttons and change display values when a button is clicked
-  button.addEventListener("click", function() {
-    var key = document.getElementsByTagName("input")[0];
-    var test = '';
-    
-    if(text == 'C') {
-      key.value = '';
-      inputVal = [];
-    }else if(text == '=') {
-      var val = key.value;
+import {Observable} from 'rxjs/Rx';
 
-      for (var i = 0; i < inputVal.length; i++) {
-       inputVal[i] = inputVal[i].replace(/x/g, '*').replace(/÷/g, '/');
-        test += inputVal[i];
-      }
+let calculator = {value: ''};
+const calcDisplay = document.getElementById('display');
+const equalButton = document.getElementById('C');
+      const equal = acc => ( {value: acc.value + '='} );
+const clearButton = document.getElementById('C');
+      const clear = acc => ( {value: ''} );
+const openBracketButton = document.getElementById('(');
+      const bracketOpen = acc => ( {value: acc.value + '('} );
+const closeBracketButton = document.getElementById(')');
+      const bracketClose = acc => ( {value: acc.value + ')'} );
+const decimalButton = document.getElementById('.');
+      const addDecimal = acc => ( {value: acc.value + '.'} );
+const addButton = document.getElementById('+');
+      const add = acc => ( {value: acc.value + '+'} );
+const subtractButton = document.getElementById('-');
+      const subtract = acc => ( {value: acc.value + '-'} );
+const multiplyButton = document.getElementById('x');
+      const multiply = acc => ( {value: acc.value + 'x'} );
+const divideButton = document.getElementById('÷');
+      const divide = acc => ( {value: acc.value + '÷'} );
+const oneButton = document.getElementById('1');
+      const one = acc => ( {value: acc.value + '1'} );
+const twoButton = document.getElementById('2');
+      const two = acc => ( {value: acc.value + '2'} );
+const threeButton = document.getElementById('3');
+      const three = acc => ( {value: acc.value + '3'} );
+const fourButton = document.getElementById('4');
+      const four = acc => ( {value: acc.value + '4'} );
+const fiveButton = document.getElementById('5');
+      const five = acc => ( {value: acc.value + '5'} );
+const sixButton = document.getElementById('6');
+      const six = acc => ( {value: acc.value + '6'} );
+const sevenButton = document.getElementById('7');
+      const seven = acc => ( {value: acc.value + '7'} );
+const eightButton = document.getElementById('8');
+      const eight = acc => ( {value: acc.value + '8'} );
+const nineButton = document.getElementById('9');
+      const nine = acc => ( {value: acc.value + '9'} );
+const zeroButton = document.getElementById('0');
+      const zero = acc => ( {value: acc.value + '0'} );
 
-      key.value = eval(test);
-      cleanValArray = true;
-    }else {
-      //cleanup if new calculation
-      if(cleanValArray) {
-        inputVal = [];
-        cleanValArray = false;
-        key.value = '';
+const button$ = Observable.merge(
+  Observable.fromEvent(equalButton, 'click').mapTo(equal),
+  Observable.fromEvent(clearButton, 'click').mapTo(clear),
+  Observable.fromEvent(openBracketButton, 'click').mapTo(bracketOpen),
+  Observable.fromEvent(closeBracketButton, 'click').mapTo(bracketClose),
+  Observable.fromEvent(decimalButton, 'click').mapTo(addDecimal),
+  Observable.fromEvent(addButton, 'click').mapTo(add),
+  Observable.fromEvent(subtractButton, 'click').mapTo(subtract),
+  Observable.fromEvent(multiplyButton, 'click').mapTo(multiply),
+  Observable.fromEvent(divideButton, 'click').mapTo(divide),
+  Observable.fromEvent(oneButton, 'click').mapTo(one),
+  Observable.fromEvent(twoButton, 'click').mapTo(two),
+  Observable.fromEvent(threeButton, 'click').mapTo(three),
+  Observable.fromEvent(fourButton, 'click').mapTo(four),
+  Observable.fromEvent(fiveButton, 'click').mapTo(five),
+  Observable.fromEvent(sixButton, 'click').mapTo(six),
+  Observable.fromEvent(sevenButton, 'click').mapTo(seven),
+  Observable.fromEvent(eightButton, 'click').mapTo(eight),
+  Observable.fromEvent(nineButton, 'click').mapTo(nine),
+  Observable.fromEvent(zeroButton, 'click').mapTo(zero)
+)
+
+button$
+  .scan((acc, update) => update(acc), calculator)
+  .subscribe(calculator => {
+      calcDisplay.innerHTML = calculator.value;
+
+      if(calculator.value.charAt(calculator.value.length) == '=') {
+        var result = replaceOperationCharacters(calculator.value);
+        calcDisplay.innerHTML = eval(result);
       }
-      
-      inputVal.push(text);
-      console.log(inputVal);
-      key.value += text; 
-    }
   });
-  return button;
-}
 
-const createDisplay = () => {
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.disabled = true;
-  input.placeholder = '0';
-  input.style.cssText = 'font-size: 2em; text-align: right; border-radius: 5px; width: 240px; height: 35px; margin-bottom: 10px; padding: 1%;';
-  return input;
-}
 
-const createKeypad = () => {
-  const symbols = [
-    '(', ')', '±', '÷',
-    '7', '8', '9', 'x',
-    '4', '5', '6', '-',
-    '1', '2', '3', '+',
-    '0', '.', 'C', '='
-  ];
-  const keypad = document.createElement('section');
-  for (let s of symbols) {
-    keypad.appendChild(createButton(s));
+/**
+ * Function to replace some numerical operation characters for eval() to work.
+ * Multiply ( x >>>>> * )
+ * Divide ( ÷ >>>>> / )
+ */
+var replaceOperationCharacters = function (value) {
+  var result;
+  for (var i = 0; i < value.length; i++) {
+    result = value.charAt(i).replace(/x/g, '*').replace(/÷/g, '/');
   }
-  keypad.style.cssText = 'display: inline-flex; flex-flow: row wrap; justify-content: space-between;';
-  return keypad;
-}
 
-const createCalculator = () => {
-  const calculator = document.createElement('section');
-  calculator.style.cssText = 'width: 250px; font-size: 100%; border: 1px solid black; padding: 10px; border-radius: 7px; margin-left: auto; margin-right: auto; font-family: Verdana;';
-  calculator.appendChild(createDisplay());
-  calculator.appendChild(createKeypad());
-  return calculator;
+  return result;
 }
-
-document.body.appendChild(createCalculator());
