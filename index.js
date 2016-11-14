@@ -2,7 +2,7 @@ import {Observable} from 'rxjs/Rx';
 
 let calculator = {value: ''};
 const calcDisplay = document.getElementById('display');
-const equalButton = document.getElementById('C');
+const equalButton = document.getElementById('=');
       const equal = acc => ( {value: acc.value + '='} );
 const clearButton = document.getElementById('C');
       const clear = acc => ( {value: ''} );
@@ -51,7 +51,7 @@ const button$ = Observable.merge(
   Observable.fromEvent(subtractButton, 'click').mapTo(subtract),
   Observable.fromEvent(multiplyButton, 'click').mapTo(multiply),
   Observable.fromEvent(divideButton, 'click').mapTo(divide),
-  Observable.fromEvent(oneButton, 'click').mapTo(one),
+  Observable.fromEvent(oneButton, 'click').fromEvent(oneButton,'keypress').mapTo(one),
   Observable.fromEvent(twoButton, 'click').mapTo(two),
   Observable.fromEvent(threeButton, 'click').mapTo(three),
   Observable.fromEvent(fourButton, 'click').mapTo(four),
@@ -66,25 +66,24 @@ const button$ = Observable.merge(
 button$
   .scan((acc, update) => update(acc), calculator)
   .subscribe(calculator => {
-      calcDisplay.innerHTML = calculator.value;
+      calcDisplay.value = calculator.value;
 
-      if(calculator.value.charAt(calculator.value.length) == '=') {
-        var result = replaceOperationCharacters(calculator.value);
-        calcDisplay.innerHTML = eval(result);
+      if(calculator.value.charAt(calculator.value.length - 1) == '=') {
+        var result = modifyOperationCharacters(calculator.value);
+        calcDisplay.value = eval(result);
       }
   });
 
-
 /**
- * Function to replace some numerical operation characters for eval() to work.
+ * Function to replace/remove some numerical operation characters for eval() to work.
  * Multiply ( x >>>>> * )
  * Divide ( ÷ >>>>> / )
+ * Remove equal sign ( = )
  */
-var replaceOperationCharacters = function (value) {
-  var result;
-  for (var i = 0; i < value.length; i++) {
-    result = value.charAt(i).replace(/x/g, '*').replace(/÷/g, '/');
+var modifyOperationCharacters = function (value) {
+  var result = '';
+  for (var i = 0; i < value.length - 1; i++) {
+    result += value.charAt(i).replace(/x/g, '*').replace(/÷/g, '/');
   }
-
   return result;
 }
