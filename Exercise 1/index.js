@@ -51,7 +51,7 @@ const button$ = Observable.merge(
   Observable.fromEvent(subtractButton, 'click').mapTo(subtract),
   Observable.fromEvent(multiplyButton, 'click').mapTo(multiply),
   Observable.fromEvent(divideButton, 'click').mapTo(divide),
-  Observable.fromEvent(oneButton, 'click').fromEvent(oneButton,'keypress').mapTo(one),
+  Observable.fromEvent(oneButton, 'click').mapTo(one),
   Observable.fromEvent(twoButton, 'click').mapTo(two),
   Observable.fromEvent(threeButton, 'click').mapTo(three),
   Observable.fromEvent(fourButton, 'click').mapTo(four),
