@@ -41,6 +41,21 @@ const nineButton = document.getElementById('9');
 const zeroButton = document.getElementById('0');
       const zero = acc => ( {value: acc.value + '0'} );
 
+const keyPressed = Observable.fromEvent(document, 'keyup')
+    .filter(function(e) {
+          var keyButtons = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '=', 'x', '-', '÷'];
+          keyButtons.forEach(function(value){
+                if(value == e.key) {
+                      return e.type + (e.key || e.which); 
+                }
+          });
+          
+      });
+
+keyPressed.subscribe(function(e) {
+    console.log(e.type, e.key);
+});
+
 const button$ = Observable.merge(
   Observable.fromEvent(equalButton, 'click').mapTo(equal),
   Observable.fromEvent(clearButton, 'click').mapTo(clear),
